@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+
+# Env & secrets
+.env
+*.env
+
+# Airflow local state (only code goes to GitHub)
+logs/
+config/
+tmp/
+airflow.cfg
+unittests.cfg
+
+# Docker volumes
+volumes/
+data/
+*.db
+
+# OS junk
+.DS_Store
+Thumbs.db

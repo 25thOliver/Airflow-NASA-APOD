@@ -1,0 +1,7 @@
+requests
+pandas
+python-dotenv  
+s3fs
+sqlalchemy
+pyscopg2-binary
+minio
