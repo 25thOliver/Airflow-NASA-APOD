@@ -270,7 +270,6 @@ From the `~/airflow-docker` folder:
 ```bash
 docker-compose up -d
 
-
 ### Prerequisites
 - Docker & Docker Compose
 - Python 3.9+
@@ -299,6 +298,7 @@ docker-compose up -d
 # Airflow: http://localhost:8080 (admin/admin)
 # MinIO: http://localhost:9001 (minioadmin/minioadmin)
 ```
+![Docker containers running](images/docker.png)
 
 ### Manual Testing
 ```bash
