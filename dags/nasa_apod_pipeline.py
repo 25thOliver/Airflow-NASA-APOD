@@ -3,6 +3,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.exceptions import AirflowSkipException
 
 # --- Fix for import paths ---
 # Ensure that the DAG folder itself is on sys.path
@@ -37,8 +38,15 @@ with DAG(
 ) as dag:
 
     def _extract(**context):
-        date = context["ds"]  # Airflow execution date (YYYY-MM-DD)
-        return fetch_apod(date=date)
+        date = (datetime.fromisoformat(context["ds"]) - timedelta(days=1)).date().isoformat()  
+        try:
+            return fetch_apod(date=date)
+        except Exception as e:
+            if "404" in str(e):
+                raise AirflowSkipException(f"No APOD found for {date}")
+            else:
+                raise
+       
 
     def _transform(**context):
         raw_path = context["ti"].xcom_pull(task_ids="extract")
