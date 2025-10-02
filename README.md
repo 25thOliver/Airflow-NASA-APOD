@@ -260,12 +260,15 @@ WHERE date::date = '2025-10-01';
 ```
 
 ![Querying PostgreSQL with DBeaver confirms that the ETL pipeline successfully ingested yesterday’s Astronomy Picture of the Day (APOD).](images/oct_2_query.png)
+*Querying PostgreSQL with DBeaver confirms that the ETL pipeline successfully ingested yesterday’s Astronomy Picture of the Day (APOD).*
 
 - **The Actual Picture Screenshot**
 ![The pipeline not only ingested metadata but also preserved the image URL, allowing analysts to fetch the actual picture.](images/oct_1_apod.png)
+*The pipeline not only ingested metadata but also preserved the image URL, allowing analysts to fetch the actual picture.*
 
 - **Airflow Pipeline Screenshot**
 ![Airflow DAG view shows successful daily ETL runs, from our earlier test runs through to yesterday’s APOD.](images/airflow_update.png)
+*Airflow DAG view shows successful daily ETL runs, from our earlier test runs through to yesterday’s APOD.*
 
 Since deploying, the pipeline has been automatically fetching and processing NASA’s APOD data daily.
 The screenshots above show a query from PostgreSQL in DBeaver, retrieving the record for October 1, 2025 — yesterday’s Astronomy Picture of the Day.
