@@ -48,7 +48,7 @@ def _backfill(**context):
     current = start
     while current <= end:
         date_str = current.isoformat()
-        print(f"📅 Processing APOD for {date_str}")
+        print(f"Processing APOD for {date_str}")
 
         try:
             raw_path = fetch_apod(date=date_str)
@@ -56,11 +56,11 @@ def _backfill(**context):
             append_staged_to_postgres(staged_path)
             print(f"✅ Successfully processed {date_str}")
         except Exception as e:
-            print(f"❌ Failed on {date_str}: {e}")
+            print(f"Failed on {date_str}: {e}")
 
         current += timedelta(days=1)
 
-    print(f"🎉 Backfill complete from {start_date} to {end_date}")
+    print(f"Backfill complete from {start_date} to {end_date}")
 
 
 with DAG(

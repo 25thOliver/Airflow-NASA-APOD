@@ -250,6 +250,24 @@ This project demonstrates a **production-grade ETL pipeline**:
 
 ---
 
+## Results & Validation
+- **DBeaver SQL Query Screenshot**
+The SQL I've run in DBeaver this morning(October 2, 2025) to check the previous day APOD and it's output:
+```sql
+SELECT date, title, explanation, url
+FROM apod_records
+WHERE date::date = '2025-10-01';
+```
+
+![Querying PostgreSQL with DBeaver confirms that the ETL pipeline successfully ingested yesterday’s Astronomy Picture of the Day (APOD).](images/oct_2_query.png)
+
+- **The Actual Picture Screenshot**
+![The pipeline not only ingested metadata but also preserved the image URL, allowing analysts to fetch the actual picture.](images/oct_1_apod.png)
+
+- **Airflow Pipeline Screenshot**
+![Airflow DAG view shows successful daily ETL runs, from our earlier test runs through to yesterday’s APOD.](images/airflow_update.png)
+
+
 ## Setup Instructions
 
 The project runs on a fully containerized stack using Docker:
