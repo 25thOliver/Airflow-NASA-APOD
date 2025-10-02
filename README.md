@@ -267,6 +267,11 @@ WHERE date::date = '2025-10-01';
 - **Airflow Pipeline Screenshot**
 ![Airflow DAG view shows successful daily ETL runs, from our earlier test runs through to yesterday’s APOD.](images/airflow_update.png)
 
+Since deploying, the pipeline has been automatically fetching and processing NASA’s APOD data daily.
+The screenshots above show a query from PostgreSQL in DBeaver, retrieving the record for October 1, 2025 — yesterday’s Astronomy Picture of the Day.
+The image URL stored in the database links directly to the NASA APOD archive, confirming the pipeline works end-to-end.
+In the Airflow UI, we can also see a history of successful DAG runs that processed the APOD records continuously since setup.
+
 
 ## Setup Instructions
 
