@@ -62,21 +62,8 @@ NASA API → Extract → MinIO (Raw) → Transform → MinIO (Staged) → Load �
 ---
 
 ## Project Structure
-```
-airflow-nasa-apod/
-│── dags/
-│   ├── nasa_apod_pipeline.py     # Daily scheduled DAG
-│   ├── nasa_apod_backfill.py     # One-off backfill DAG
-│   └── pipelines/
-│       └── nasa_apod/
-│           ├── extract.py        # Extract from NASA API → MinIO
-│           ├── transform.py      # Transform JSON → staged data
-│           ├── load.py           # Load staged → Postgres
-│           └── README.md
-│── .env
-│── .gitignore
-│── README.md
-```
+![The project tree structure](images/project_structure.png)
+*The project tree structure*
 
 ### Structure Rationale
 - **Modular Scripts**: Each ETL step is isolated for testing and reusability

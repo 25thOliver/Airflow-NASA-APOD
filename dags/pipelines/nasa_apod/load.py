@@ -6,9 +6,36 @@ import pandas as pd
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
+from datetime import datetime, timedelta
 
 # Load environment variables
 load_dotenv()
+
+def get_latest_staged_file(base_uri: str):
+    """
+    Get the latest staged APOD JSON file URI from MinIO.
+    """
+    today = datetime.now()
+    latest_date = None
+
+    # Check the last 7 days for staged files
+    for i in range(7):
+        date_check = today - timedelta(days=i)
+        date_str = date_check.strftime('%Y-%m-%d')
+        staged_s3_uri = f"{base_uri}/staged/{date_str}.json"
+        
+        # Check if the staged file exists
+        try:
+            pd.read_json(staged_s3_uri, storage_options=storage_options)
+            latest_date = date_str  # Update if file exists
+            break  # Exit once the latest file is found
+        except Exception:
+            continue  # If the file does not exist, check previous days
+
+    if latest_date is None:
+        raise FileNotFoundError("No valid staged APOD JSON files found.")
+
+    return f"{base_uri}/staged/{latest_date}.json"
 
 def append_staged_to_postgres(staged_json_path: str, table_name: str = "apod_records"):
     """
@@ -19,7 +46,6 @@ def append_staged_to_postgres(staged_json_path: str, table_name: str = "apod_rec
     Returns:
         Name of the table where data was loaded
     """
-
     # Get connection string from environment
     conn_string = os.environ.get("AIVEN_PG_CONN_STRING")
     if not conn_string:
@@ -57,13 +83,14 @@ def append_staged_to_postgres(staged_json_path: str, table_name: str = "apod_rec
     return table_name
 
 if __name__ == "__main__":
-    import argparse
-
-    p = argparse.ArgumentParser()
-    p.add_argument("--input", required=True, help="Path to staged JSON file")
-    p.add_argument("--table", default="apod_records", help="Table name")
-
-    args = p.parse_args()
-
-    result = append_staged_to_postgres(args.input, args.table)
-    print(f"Success: {result}")
+    base_uri = "s3://nasa-apod-dl"
+    try:
+        # Get the latest staged file from MinIO
+        staged_json_path = get_latest_staged_file(base_uri)
+        print(f"Using staged file: {staged_json_path}")
+        
+        # Load the staged file into PostgreSQL
+        result = append_staged_to_postgres(staged_json_path)
+        print(f"Success: {result}")
+    except Exception as e:
+        print(f"Error: {e}")
