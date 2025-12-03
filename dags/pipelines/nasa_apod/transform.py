@@ -6,7 +6,8 @@ import os
 from datetime import datetime, timedelta
 
 # Load .env
-dotenv_path = Path(__file__).parent / ".env"
+project_root = Path(__file__).parent.parent.parent
+dotenv_path = project_root / ".env"
 if dotenv_path.exists():
     load_dotenv(dotenv_path=dotenv_path)
 
