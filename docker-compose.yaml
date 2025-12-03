@@ -67,6 +67,11 @@ x-airflow-common:
     # See https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/logging-monitoring/check-health.html#scheduler-health-check-server
     # yamllint enable rule:line-length
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
+     # MinIO/S3 configuration for APOD pipeline
+    MINIO_BUCKET: ${MINIO_BUCKET:-nasa-apod-dl}
+    MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+    MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    MINIO_ENDPOINT: http://minio:9000
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
     _PIP_ADDITIONAL_REQUIREMENTS:  ${_PIP_ADDITIONAL_REQUIREMENTS:-}
@@ -135,7 +140,6 @@ services:
       start_period: 30s
     restart: always
 
-  airflow-apiserver:
 
   airflow-apiserver:
     <<: *airflow-common
