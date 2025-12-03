@@ -1,4 +1,4 @@
-# Load a staged APOD record into PostgreSQL using Aiven connection string
+# Load a staged APOD record into PostgreSQL using Postgres connection string
 
 import json
 from pathlib import Path
