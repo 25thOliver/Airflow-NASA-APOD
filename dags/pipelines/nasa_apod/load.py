@@ -11,6 +11,15 @@ from datetime import datetime, timedelta
 # Load environment variables
 load_dotenv()
 
+# Storage options for MinIO/S3
+storage_options = {
+    "key": os.environ.get("MINIO_ACCESS_KEY"),
+    "secret": os.environ.get("MINIO_SECRET_KEY"),
+    "client_kwargs": {
+        "endpoint_url": os.environ.get("MINIO_ENDPOINT", "http://172.17.0.1:9000"),
+        },
+}
+
 def get_latest_staged_file(base_uri: str):
     """
     Get the latest staged APOD JSON file URI from MinIO.
@@ -55,14 +64,7 @@ def append_staged_to_postgres(staged_json_path: str, table_name: str = "apod_rec
     if staged_json_path.startswith("s3://"):
         print(f"Reading from S3: {staged_json_path}")
 
-        # Storage options for MinIO/S3
-        storage_options = {
-            "key": os.environ.get("MINIO_ACCESS_KEY"),
-            "secret": os.environ.get("MINIO_SECRET_KEY"),
-            "client_kwargs": {
-                "endpoint_url": os.environ.get("MINIO_ENDPOINT", "http://172.17.0.1:9000"),
-            },
-        }
+        
 
         # Read from S3/MinIO
         df = pd.read_json(staged_json_path, storage_options=storage_options)
