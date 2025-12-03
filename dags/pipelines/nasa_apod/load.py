@@ -56,9 +56,9 @@ def append_staged_to_postgres(staged_json_path: str, table_name: str = "apod_rec
         Name of the table where data was loaded
     """
     # Get connection string from environment
-    conn_string = os.environ.get("AIVEN_PG_CONN_STRING")
+    conn_string = os.environ.get("POSTGRES_CONN_STRING")
     if not conn_string:
-        raise ValueError("AIVEN_PG_CONN_STRING not found in environment variables")
+        raise ValueError("POSTGRES_CONN_STRING not found in environment variables")
 
     # Check if the path is an S3 URI
     if staged_json_path.startswith("s3://"):
