@@ -8,11 +8,13 @@ from dotenv import load_dotenv
 import pandas as pd
 import sys
 
-# load .env 
-dotenv_path = Path(__file__).parent / ".env"
+# load .env from project root
+project_root = Path(__file__).parent.parent.parent	
+dotenv_path = project_root / ".env"
 if dotenv_path.exists():
 	load_dotenv(dotenv_path=dotenv_path)
-
+else:
+	load_dotenv()
 
 API_ENDPOINT = "https://api.nasa.gov/planetary/apod"
 
