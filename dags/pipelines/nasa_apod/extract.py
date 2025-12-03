@@ -46,7 +46,7 @@ def fetch_apod(date: str | None = None, api_key: str | None = None):
 		"key": os.environ.get("MINIO_ACCESS_KEY"),
 		"secret": os.environ.get("MINIO_SECRET_KEY"),
 		"client_kwargs": {
-			"endpoint_url": os.environ.get("MINIO_ENDPOINT", "http://172.17.0.1:9000"),
+						"endpoint_url": os.environ.get("MINIO_ENDPOINT", "http://localhost:9000"),
 		},
 	
 	}
