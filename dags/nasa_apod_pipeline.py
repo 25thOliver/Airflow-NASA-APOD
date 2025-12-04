@@ -5,18 +5,21 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.exceptions import AirflowSkipException
 
-# --- Fix for import paths ---
+# Fix for import paths 
 # Ensure that the DAG folder itself is on sys.path
 DAGS_DIR = Path(__file__).parent
 if str(DAGS_DIR) not in sys.path:
     sys.path.append(str(DAGS_DIR))
 
-# --- Import your ETL functions ---
+# Import your ETL functions 
 from pipelines.nasa_apod.extract import fetch_apod
 from pipelines.nasa_apod.transform import transform_apod_json
 from pipelines.nasa_apod.load import append_staged_to_postgres
 
-# --- DAG default args ---
+# ETL Configuration
+MINIO_BUCKET = "nasa-apod-dl"  # Bucket name for raw and staged data
+
+# DAG default args 
 default_args = {
     "owner": "airflow",
     "depends_on_past": False,
@@ -50,7 +53,8 @@ with DAG(
 
     def _transform(**context):
         raw_path = context["ti"].xcom_pull(task_ids="extract")
-        return transform_apod_json(raw_path)
+        staged_dir = f"s3://{MINIO_BUCKET}/staged"
+        return transform_apod_json(raw_path, staged_dir=staged_dir)
 
     def _load(**context):
         staged_path = context["ti"].xcom_pull(task_ids="transform")
