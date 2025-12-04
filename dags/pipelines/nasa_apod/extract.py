@@ -1,4 +1,4 @@
-# Fetch NASA APOD JSON for a given date and save it under data/nasa_apod/raw/<date>.json
+# Fetch NASA APOD JSON and save to MinIO raw bucket
 import os
 import json
 import datetime
@@ -48,10 +48,13 @@ def fetch_apod(date: str | None = None, api_key: str | None = None):
 		"key": os.environ.get("MINIO_ACCESS_KEY"),
 		"secret": os.environ.get("MINIO_SECRET_KEY"),
 		"client_kwargs": {
-						"endpoint_url": os.environ.get("MINIO_ENDPOINT", "http://localhost:9000"),
+			"endpoint_url": os.environ.get("MINIO_ENDPOINT", "http://localhost:9000"),
 		},
-	
 	}
+	
+	# Validate MinIO config
+	if not storage_options["key"] or not storage_options["secret"]:
+		raise RuntimeError("MINIO_ACCESS_KEY and MINIO_SECRET_KEY must be set")
 
 	# Ensure the bucket exists before writing
 	try:
@@ -68,13 +71,8 @@ def fetch_apod(date: str | None = None, api_key: str | None = None):
 
 	except Exception as e:
 		print(f"Error saving to {s3_uri}: {e}")
-		
-		# Fallback to local storage
-		local_dir = Path(__file__).parent.parent.parent / "tmp" / f"{date_str}.json"
-		with open(local_dir, "w") as f:
-			json.dump(data, f, indent=2)
-		print(f"Saved raw APOD JSON locally to: {local_dir}")
-		return str(local_dir)
+		print(f"MinIO endpoint: {storage_options['client_kwargs']['endpoint_url']}")
+		print(f"MinIO bucket: {os.environ.get('MINIO_BUCKET')}")
 
 
 if __name__ == "__main__":
