@@ -9,7 +9,12 @@ import os
 from datetime import datetime, timedelta
 
 # Load environment variables
-load_dotenv()
+project_root = Path(__file__).parent.parent.parent
+dotenv_path = project_root / ".env"
+if dotenv_path.exists():
+    load_dotenv(dotenv_path=dotenv_path)
+else:
+    load_dotenv()
 
 # Storage options for MinIO/S3
 storage_options = {
