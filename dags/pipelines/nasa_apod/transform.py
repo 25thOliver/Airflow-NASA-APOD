@@ -29,7 +29,16 @@ def transform_apod_json(raw_s3_uri: str, staged_dir: str | None = None):
     """
     try:
         # Read the raw JSON from S3
-        df = pd.read_json(raw_s3_uri, storage_options=storage_options)
+        if not raw_s3_uri:
+            raise ValueError("raw_s3_uri is empty or None")
+        print(f"Transformiong APOD data from: {raw_s3_uri}")
+        
+        if raw_s3_uri.startswith("s3://"):
+            print("reading from S3/MinIO")
+            df = pd.read_json(raw_s3_uri, storage_options=storage_options)
+        else:
+            print("reading from local file")
+            df = pd.read_json(raw_s3_uri)
         apod = df.iloc[0].to_dict()
 
         # Prepare staged record
