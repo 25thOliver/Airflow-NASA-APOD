@@ -54,10 +54,15 @@ def transform_apod_json(raw_s3_uri: str, staged_dir: str | None = None):
 
         # Determine staged S3 URI
         date_str = str(record["date"]).split()[0] if " " in str(record["date"]) else record["date"]
-        staged_s3_uri = f"{staged_dir.rstrip('/')}/{date_str}.json" if staged_dir else f"s3://{raw_s3_uri.split('/')[2]}/staged/{date_str}.json"
-
-        # Save staged record back to S3
-        pd.DataFrame([record]).to_json(staged_s3_uri, orient="records", storage_options=storage_options, index=False)
+        if raw_s3_uri.startswith("s3://"):
+            staged_s3_uri = f"{staged_dir.rstrip('/')}/{date_str}.json" if staged_dir else f"s3://{raw_s3_uri.split('/')[2]}/staged/{date_str}.json"
+            # Save staged record back to S3
+            pd.DataFrame([record]).to_json(staged_s3_uri, orient="records", storage_options=storage_options, index=False)
+        else:
+            # Fallback: save to local file if raw was local
+            staged_s3_uri = str(Path(raw_s3_uri).parent.parent / "staged" / f"{date_str}.json")
+            Path(staged_s3_uri).parent.mkdir(parents=True, exist_ok=True)
+            pd.DataFrame([record]).to_json(staged_s3_uri, orient="records", index=False)
         print(f"Saved staged record to: {staged_s3_uri}")
         return str(staged_s3_uri)
 
