@@ -53,40 +53,33 @@ def get_latest_staged_file(base_uri: str):
 
 def append_staged_to_postgres(staged_json_path: str, table_name: str = "apod_records"):
     """
-    Append a staged APOD JSON to PostgreSQL
+    Load staged APOD JSON from MinIO into PostgreSQL.
+    
     Args:
-        staged_json_path: Path or S3 URI to the staged JSON file
-        table_name: Name of the table to append to
+        staged_json_path: S3 URI to staged JSON file (e.g., s3://nasa-apod-dl/staged/2025-12-01.json)
+        table_name: Name of the PostgreSQL table to append to
+    
     Returns:
         Name of the table where data was loaded
     """
+    if not staged_json_path or not staged_json_path.startswith("s3://"):
+        raise ValueError(f"Invalid staged_json_path: {staged_json_path}. Must be an S3 URI starting with 's3://'")
+    
     # Get connection string from environment
     conn_string = os.environ.get("POSTGRES_CONN_STRING")
     if not conn_string:
         raise ValueError("POSTGRES_CONN_STRING not found in environment variables")
 
-    # Check if the path is an S3 URI
-    if staged_json_path.startswith("s3://"):
-        print(f"Reading from S3: {staged_json_path}")
+    print(f"Reading staged data from: {staged_json_path}")
+    
+    # Read staged JSON from MinIO
+    df = pd.read_json(staged_json_path, storage_options=storage_options)
 
-        
-
-        # Read from S3/MinIO
-        df = pd.read_json(staged_json_path, storage_options=storage_options)
-    else:
-        print(f"Reading from local file: {staged_json_path}")
-        # Read from local file
-        with open(staged_json_path, 'r') as f:
-            record = json.load(f)
-        df = pd.DataFrame([record])
-
-    # Connect to PostgreSQL
+    # Connect to PostgreSQL and load data
     engine = create_engine(conn_string)
-
-    # Append to table (creates table if doesn't exist)
     df.to_sql(table_name, engine, if_exists='append', index=False)
 
-    print(f"Loaded record into {table_name}")
+    print(f"Successfully loaded record into {table_name}")
     return table_name
 
 if __name__ == "__main__":
