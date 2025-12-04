@@ -67,18 +67,20 @@ x-airflow-common:
     # See https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/logging-monitoring/check-health.html#scheduler-health-check-server
     # yamllint enable rule:line-length
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
+    # ETL Pipeline Configuration (loaded from .env, with container-specific overrides)
     # MinIO/S3 configuration for APOD pipeline
-    MINIO_BUCKET: ${MINIO_BUCKET:-nasa-apod-dl}
-    MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
-    MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    MINIO_BUCKET: ${MINIO_BUCKET}
+    MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+    MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    # Override endpoint for container-to-container communication
     MINIO_ENDPOINT: http://minio:9000
     # NASA API key for extract step
     NASA_API_KEY: ${NASA_API_KEY}
-    # Postgres connection string for load step (used by load.py)
-    POSTGRES_CONN_STRING: ${POSTGRES_CONN_STRING:-postgresql+psycopg2://airflow:airflow@postgres:5432/airflow}
+    # Postgres connection string for load step (container uses service name)
+    POSTGRES_CONN_STRING: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
-    _PIP_ADDITIONAL_REQUIREMENTS:  ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-s3fs pandas sqlalchemy psycopg2-binary}
     # The following line can be used to set a custom config file, stored in the local config folder
     AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
   volumes:
@@ -128,8 +130,8 @@ services:
     image: minio/minio:latest
     container_name: airflow-nasa-apod-minio-1
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
     command: server /data --console-address ":9001"
     ports:
       - "9000:9000"  # S3 API
