@@ -67,11 +67,15 @@ x-airflow-common:
     # See https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/logging-monitoring/check-health.html#scheduler-health-check-server
     # yamllint enable rule:line-length
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
-     # MinIO/S3 configuration for APOD pipeline
+    # MinIO/S3 configuration for APOD pipeline
     MINIO_BUCKET: ${MINIO_BUCKET:-nasa-apod-dl}
     MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
     MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
     MINIO_ENDPOINT: http://minio:9000
+    # NASA API key for extract step
+    NASA_API_KEY: ${NASA_API_KEY}
+    # Postgres connection string for load step (used by load.py)
+    POSTGRES_CONN_STRING: ${POSTGRES_CONN_STRING:-postgresql+psycopg2://airflow:airflow@postgres:5432/airflow}
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
     _PIP_ADDITIONAL_REQUIREMENTS:  ${_PIP_ADDITIONAL_REQUIREMENTS:-}
