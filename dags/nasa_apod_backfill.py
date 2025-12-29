@@ -14,6 +14,9 @@ from pipelines.nasa_apod.extract import fetch_apod
 from pipelines.nasa_apod.transform import transform_apod_json
 from pipelines.nasa_apod.load import append_staged_to_postgres
 
+# ETL Configuration
+MINIO_BUCKET = "nasa-apod-dl"  # Bucket name for raw and staged data
+
 # --- DAG default args ---
 default_args = {
     "owner": "airflow",
@@ -51,12 +54,18 @@ def _backfill(**context):
         print(f"Processing APOD for {date_str}")
 
         try:
-            raw_path = fetch_apod(date=date_str)
-            staged_path = transform_apod_json(raw_path)
+            # Use separate MinIO paths for backfill: backfill/raw/ and backfill/staged/
+            raw_path = fetch_apod(date=date_str, base_path="backfill/raw")
+            staged_dir = f"s3://{MINIO_BUCKET}/backfill/staged"
+            staged_path = transform_apod_json(raw_path, staged_dir=staged_dir)
+            # Use separate table for backfill data
             append_staged_to_postgres(staged_path, table_name="apod_backfill_records")
-            print(f"✅ Successfully processed {date_str}")
+            print(f"Successfully processed {date_str}")
         except Exception as e:
             print(f"Failed on {date_str}: {e}")
+            import traceback
+            traceback.print_exc()
+            # Continue with next date instead of failing entire backfill
 
         current += timedelta(days=1)
 
