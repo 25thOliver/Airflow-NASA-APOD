@@ -38,12 +38,26 @@ def _backfill(**context):
       "end_date": "2022-12-31"
     }
     """
-    conf = context["dag_run"].conf
+    # Access dag_run from context
+    print(f"Context keys: {list(context.keys())}")
+    dag_run = context.get("dag_run")
+    if not dag_run:
+        print("ERROR: dag_run not found in context")
+        raise ValueError("dag_run not found in context. Make sure to trigger with 'Trigger DAG w/ config'")
+    
+    conf = dag_run.conf or {}
+    print(f"DAG run conf: {conf}")
     start_date = conf.get("start_date")
     end_date = conf.get("end_date")
+    print(f"Parsed dates - start_date: {start_date}, end_date: {end_date}")
 
     if not start_date or not end_date:
-        raise ValueError("Both start_date and end_date must be provided in DAG conf")
+        raise ValueError(
+            f"Both start_date and end_date must be provided in DAG conf. "
+            f"Received conf: {conf}. "
+            f"Please use 'Trigger DAG w/ config' and provide JSON: "
+            f'{{"start_date": "2024-01-01", "end_date": "2024-01-07"}}'
+        )
 
     start = datetime.fromisoformat(start_date).date()
     end = datetime.fromisoformat(end_date).date()
