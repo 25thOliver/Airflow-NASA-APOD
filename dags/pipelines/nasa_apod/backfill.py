@@ -1,5 +1,8 @@
 """
 Fetch historical APOD records, stage them in MinIo, and load into Postgres
+Standalone backfill script for historical APOD records.
+Fetches data from NASA API, stages in MinIO, and loads into Postgres.
+Uses seperate table name(apod_backfill_records) from daily pipeline.
 """
 
 import os
@@ -72,8 +75,8 @@ def backfill(days: int = 30):
         print(f"Staged --> {s3_uri}")
 
 
-        # Load into Postgres
-        append_staged_to_postgres(s3_uri, table_name="apod_record")
+        # Load into Postgres(seperate table for backfill)
+        append_staged_to_postgres(s3_uri, table_name="apod_backfill_records")
         staged_uris.append(s3_uri)
 
     print(f"Backfilled {len(staged_uris)} APOD records")
