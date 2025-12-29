@@ -53,7 +53,7 @@ def _backfill(**context):
         try:
             raw_path = fetch_apod(date=date_str)
             staged_path = transform_apod_json(raw_path)
-            append_staged_to_postgres(staged_path)
+            append_staged_to_postgres(staged_path, table_name="apod_backfill_records")
             print(f"✅ Successfully processed {date_str}")
         except Exception as e:
             print(f"Failed on {date_str}: {e}")
